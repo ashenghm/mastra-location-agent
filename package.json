@@ -1,14 +1,16 @@
 {
   "name": "mastra-location-agent",
   "version": "1.0.0",
-  "description": "A Mastra-powered agent that provides IP geolocation services with AI-powered location insights using GraphQL API",
+  "description": "A Mastra-powered agent that provides intelligent IP geolocation services with AI-powered location insights",
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "build": "wrangler build",
+    "build": "tsc",
     "test": "jest",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "start": "wrangler dev --local",
+    "preview": "wrangler dev --remote"
   },
   "dependencies": {
     "@mastra/core": "^0.1.0",
