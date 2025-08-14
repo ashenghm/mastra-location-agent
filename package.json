@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler publish",
+    "deploy": "wrangler deploy",
     "build": "wrangler build",
     "test": "jest",
     "type-check": "tsc --noEmit"
@@ -13,6 +13,7 @@
   "dependencies": {
     "@mastra/core": "^0.1.0",
     "@mastra/engine": "^0.1.0",
+    "@graphql-tools/schema": "^10.0.0",
     "graphql": "^16.8.1",
     "graphql-yoga": "^5.0.0",
     "axios": "^1.6.0",
