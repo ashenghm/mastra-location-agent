@@ -13,9 +13,8 @@ name = "mastra-location-agent-dev"
 ENVIRONMENT = "production"
 
 # Secrets to be set:
-# OPENWEATHER_API_KEY
-# IPGEOLOCATION_API_KEY
-# OPENAI_API_KEY (for travel planning AI)
+# IPGEOLOCATION_API_KEY (required for IP geolocation)
+# OPENAI_API_KEY (required for AI-powered location insights)
 
 # KV namespace for caching
 [[kv_namespaces]]
