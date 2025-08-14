@@ -1,0 +1,33 @@
+import { LocationAgent } from '../agents/location-agent';
+import { WeatherAgent } from '../agents/weather-agent';
+import { TravelAgent } from '../agents/travel-agent';
+import { Env } from '../index';
+
+export interface GraphQLContext extends Env {
+  locationAgent: LocationAgent;
+  weatherAgent: WeatherAgent;
+  travelAgent: TravelAgent;
+  clientIP?: string;
+}
+
+export function createContext(
+  request: Request, 
+  agents: {
+    locationAgent: LocationAgent;
+    weatherAgent: WeatherAgent;
+    travelAgent: TravelAgent;
+  }
+): Partial<GraphQLContext> {
+  // Extract client IP from various headers
+  const clientIP = 
+    request.headers.get('CF-Connecting-IP') ||
+    request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim() ||
+    request.headers.get('X-Real-IP') ||
+    request.headers.get('X-Client-IP') ||
+    '127.0.0.1';
+
+  return {
+    ...agents,
+    clientIP,
+  };
+}
