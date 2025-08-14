@@ -1,7 +1,7 @@
 {
   "name": "mastra-location-agent",
   "version": "1.0.0",
-  "description": "A Mastra-powered agent that provides location-based services including weather queries and travel planning using GraphQL API",
+  "description": "A Mastra-powered agent that provides IP geolocation services with AI-powered location insights using GraphQL API",
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",
@@ -32,8 +32,9 @@
     "graphql",
     "cloudflare-workers",
     "location",
-    "weather",
-    "travel"
+    "geolocation",
+    "ai",
+    "openai"
   ],
   "author": "Your Name",
   "license": "MIT"
