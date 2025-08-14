@@ -2,12 +2,9 @@ import { createYoga } from 'graphql-yoga';
 import { schema } from './graphql/schema';
 import { createContext } from './graphql/context';
 import { LocationAgent } from './agents/location-agent';
-import { WeatherAgent } from './agents/weather-agent';
-import { TravelAgent } from './agents/travel-agent';
-import { AITravelAgent } from './agents/ai-travel-agent';
+import { AILocationAgent } from './agents/ai-location-agent';
 
 export interface Env {
-  OPENWEATHER_API_KEY: string;
   IPGEOLOCATION_API_KEY: string;
   OPENAI_API_KEY: string;
   CACHE: KVNamespace;
@@ -16,18 +13,14 @@ export interface Env {
 
 // Create Mastra agents
 const locationAgent = new LocationAgent();
-const weatherAgent = new WeatherAgent();
-const travelAgent = new TravelAgent();
-const aiTravelAgent = new AITravelAgent();
+const aiLocationAgent = new AILocationAgent();
 
 // Create GraphQL Yoga server
 const yoga = createYoga({
   schema,
   context: (request) => createContext(request, {
     locationAgent,
-    weatherAgent,
-    travelAgent,
-    aiTravelAgent,
+    aiLocationAgent,
   }),
   cors: {
     origin: '*',
@@ -45,9 +38,7 @@ export default {
       const contextWithEnv = {
         ...env,
         locationAgent,
-        weatherAgent,
-        travelAgent,
-        aiTravelAgent,
+        aiLocationAgent,
       };
 
       // Handle GraphQL requests
@@ -63,18 +54,16 @@ export default {
           environment: env.ENVIRONMENT,
           services: {
             locationAgent: 'operational',
-            weatherAgent: 'operational',
-            travelAgent: 'operational',
-            aiTravelAgent: env.OPENAI_API_KEY ? 'operational' : 'disabled (no API key)',
+            aiLocationAgent: env.OPENAI_API_KEY ? 'operational' : 'disabled (no API key)',
           },
           endpoints: {
             graphql: '/graphql',
             playground: '/',
             health: '/health',
+            docs: '/docs',
           },
           apiKeys: {
             ipGeolocation: env.IPGEOLOCATION_API_KEY ? 'configured' : 'missing',
-            openWeather: env.OPENWEATHER_API_KEY ? 'configured' : 'missing',
             openAI: env.OPENAI_API_KEY ? 'configured' : 'missing',
           }
         };
@@ -88,7 +77,7 @@ export default {
       if (request.url.includes('/docs')) {
         const docs = {
           title: 'Mastra Location Agent API',
-          description: 'A comprehensive location-based services API with AI-powered travel planning',
+          description: 'A comprehensive IP geolocation service with AI-powered location insights',
           version: '1.0.0',
           endpoints: {
             graphql: {
@@ -96,10 +85,9 @@ export default {
               description: 'GraphQL API endpoint',
               methods: ['GET', 'POST'],
               features: [
-                'Location services (IP geolocation)',
-                'Weather information',
-                'Travel planning',
-                'AI-powered recommendations',
+                'IP geolocation services',
+                'AI-powered location insights',
+                'Location-based recommendations',
                 'Workflow execution',
                 'Real-time subscriptions'
               ]
@@ -126,53 +114,44 @@ query GetCurrentLocation {
     timezone
   }
 }`,
-            getWeatherByIP: `
-query GetWeatherByIP {
-  getWeatherByIP {
-    location
-    temperature
-    description
-    humidity
-    windSpeed
+            getLocationInsights: `
+query GetLocationInsights {
+  getLocationInsights(ip: "8.8.8.8") {
+    location {
+      city
+      country
+      latitude
+      longitude
+    }
+    insights {
+      demographics
+      economy
+      culture
+      attractions
+      climate
+      livingCosts
+      safetyInfo
+      localTips
+    }
+    nearbyPlaces {
+      name
+      type
+      distance
+      description
+    }
   }
 }`,
-            createAITravelPlan: `
-mutation CreateAITravelPlan {
-  createAITravelPlan(
-    input: {
-      destination: "Tokyo, Japan"
-      startDate: "2024-09-01"
-      endDate: "2024-09-07"
-      travelers: 2
-      interests: ["culture", "food", "technology"]
-      travelStyle: "comfortable"
-      useAI: true
-    }
-    userProfile: {
-      interests: ["culture", "food", "technology"]
-      travelStyle: "comfortable"
-      budget: "$150-300 per day"
-      groupSize: 2
-    }
-  ) {
+            executeLocationWorkflow: `
+mutation ExecuteLocationWorkflow {
+  executeLocationWorkflow(ip: "8.8.8.8") {
     id
-    destination
-    aiRecommendations {
-      destination
-      description
-      activities
-      aiInsights
-      personalizedTips
+    status
+    steps {
+      name
+      status
+      output
     }
-    personalizedItinerary {
-      generalTips
-      budgetBreakdown {
-        accommodation
-        food
-        activities
-        transportation
-      }
-    }
+    result
   }
 }`
           },
@@ -180,11 +159,11 @@ mutation CreateAITravelPlan {
             enabled: env.OPENAI_API_KEY ? true : false,
             model: 'gpt-4o-mini',
             capabilities: [
-              'Intelligent travel recommendations',
-              'Personalized itinerary generation',
-              'Cultural insights and local tips',
-              'Budget optimization',
-              'Seasonal travel advice'
+              'Location-based insights and analysis',
+              'Cultural and demographic information',
+              'Local attractions and recommendations',
+              'Safety and living cost information',
+              'Climate and weather patterns'
             ]
           }
         };
