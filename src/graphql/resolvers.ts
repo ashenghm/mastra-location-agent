@@ -123,6 +123,100 @@ export const resolvers = {
       }
     },
 
+    // AI-powered travel queries
+    async getAITravelRecommendations(
+      parent: any,
+      { location, interests, travelStyle, budget, duration }: {
+        location: string;
+        interests: string[];
+        travelStyle?: string;
+        budget?: string;
+        duration?: string;
+      },
+      context: GraphQLContext
+    ) {
+      try {
+        if (!context.aiTravelAgent) {
+          throw new Error('AI Travel Agent not available');
+        }
+        if (!context.OPENAI_API_KEY) {
+          throw new Error('OpenAI API key not configured');
+        }
+
+        return await context.aiTravelAgent.getAIRecommendations(
+          location,
+          interests,
+          travelStyle,
+          budget,
+          duration,
+          context.OPENAI_API_KEY
+        );
+      } catch (error) {
+        console.error('Error getting AI travel recommendations:', error);
+        throw new Error(`Failed to get AI recommendations: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    },
+
+    async getTravelInsights(
+      parent: any,
+      { destination, currentSeason, userInterests }: {
+        destination: string;
+        currentSeason: string;
+        userInterests: string[];
+      },
+      context: GraphQLContext
+    ) {
+      try {
+        if (!context.aiTravelAgent) {
+          throw new Error('AI Travel Agent not available');
+        }
+        if (!context.OPENAI_API_KEY) {
+          throw new Error('OpenAI API key not configured');
+        }
+
+        return await context.aiTravelAgent.getDestinationInsights(
+          destination,
+          currentSeason,
+          userInterests,
+          context.OPENAI_API_KEY
+        );
+      } catch (error) {
+        console.error('Error getting travel insights:', error);
+        throw new Error(`Failed to get travel insights: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    },
+
+    async generatePersonalizedItinerary(
+      parent: any,
+      { destination, startDate, endDate, userProfile }: {
+        destination: string;
+        startDate: string;
+        endDate: string;
+        userProfile: any;
+      },
+      context: GraphQLContext
+    ) {
+      try {
+        if (!context.aiTravelAgent) {
+          throw new Error('AI Travel Agent not available');
+        }
+        if (!context.OPENAI_API_KEY) {
+          throw new Error('OpenAI API key not configured');
+        }
+
+        return await context.aiTravelAgent.createPersonalizedItinerary(
+          destination,
+          startDate,
+          endDate,
+          userProfile,
+          context.OPENAI_API_KEY
+        );
+      } catch (error) {
+        console.error('Error generating personalized itinerary:', error);
+        throw new Error(`Failed to generate personalized itinerary: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    },
+
     // Workflow queries
     async getWorkflowExecution(parent: any, { id }: { id: string }, context: GraphQLContext) {
       try {
@@ -169,6 +263,74 @@ export const resolvers = {
       } catch (error) {
         console.error('Error deleting travel plan:', error);
         throw new Error(`Failed to delete travel plan: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    },
+
+    // AI-enhanced travel mutations
+    async createAITravelPlan(
+      parent: any,
+      { input, userProfile }: { input: any; userProfile: any },
+      context: GraphQLContext
+    ) {
+      try {
+        if (!context.aiTravelAgent) {
+          throw new Error('AI Travel Agent not available');
+        }
+        if (!context.OPENAI_API_KEY) {
+          throw new Error('OpenAI API key not configured');
+        }
+
+        // Create base travel plan
+        const basePlan = await context.travelAgent.createPlan(input);
+
+        // Enhance with AI if requested
+        if (input.useAI) {
+          try {
+            // Get AI recommendations
+            const aiRecommendations = await context.aiTravelAgent.getAIRecommendations(
+              input.destination,
+              input.interests || [],
+              input.travelStyle,
+              input.budget,
+              undefined,
+              context.OPENAI_API_KEY
+            );
+
+            // Get personalized itinerary
+            const personalizedItinerary = await context.aiTravelAgent.createPersonalizedItinerary(
+              input.destination,
+              input.startDate,
+              input.endDate,
+              userProfile,
+              context.OPENAI_API_KEY
+            );
+
+            // Get travel insights
+            const currentSeason = new Date().toLocaleDateString('en-US', { month: 'long' });
+            const travelInsights = await context.aiTravelAgent.getDestinationInsights(
+              input.destination,
+              currentSeason,
+              input.interests || [],
+              context.OPENAI_API_KEY
+            );
+
+            // Merge AI enhancements with base plan
+            return {
+              ...basePlan,
+              aiRecommendations,
+              personalizedItinerary,
+              travelInsights,
+            };
+          } catch (aiError) {
+            console.warn('AI enhancement failed, returning base plan:', aiError);
+            return basePlan;
+          }
+        }
+
+        return basePlan;
+      } catch (error) {
+        console.error('Error creating AI travel plan:', error);
+        throw new Error(`Failed to create AI travel plan: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     },
 
@@ -224,6 +386,45 @@ export const resolvers = {
       } catch (error) {
         console.error('Error executing travel planning workflow:', error);
         throw new Error(`Failed to execute travel planning workflow: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    },
+
+    async executeAITravelPlanningWorkflow(
+      parent: any,
+      { ip, destination, startDate, endDate, userProfile }: {
+        ip?: string;
+        destination?: string;
+        startDate: string;
+        endDate: string;
+        userProfile: any;
+      },
+      context: GraphQLContext
+    ) {
+      try {
+        if (!context.aiTravelAgent) {
+          throw new Error('AI Travel Agent not available');
+        }
+        if (!context.OPENAI_API_KEY) {
+          throw new Error('OpenAI API key not configured');
+        }
+
+        const workflowEngine = new WorkflowEngine(context);
+        const targetIP = ip || context.clientIP;
+        
+        if (!targetIP && !destination) {
+          throw new Error('Either IP address or destination must be provided');
+        }
+
+        return await workflowEngine.executeAITravelPlanningWorkflow({
+          ip: targetIP,
+          destination,
+          startDate,
+          endDate,
+          userProfile,
+        });
+      } catch (error) {
+        console.error('Error executing AI travel planning workflow:', error);
+        throw new Error(`Failed to execute AI travel planning workflow: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     },
   },
