@@ -1,6 +1,7 @@
-import { buildSchema } from 'graphql';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { resolvers } from './resolvers';
 
-export const schema = buildSchema(`
+const typeDefs = `
   type Location {
     ip: String!
     country: String!
@@ -146,4 +147,9 @@ export const schema = buildSchema(`
   type Subscription {
     workflowUpdates(workflowId: String!): WorkflowExecution!
   }
-`);
+`;
+
+export const schema = makeExecutableSchema({
+  typeDefs,
+  resolvers,
+});
