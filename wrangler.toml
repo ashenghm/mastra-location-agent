@@ -1,0 +1,28 @@
+name = "mastra-location-agent"
+compatibility_date = "2024-08-14"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+name = "mastra-location-agent"
+
+[env.development]
+name = "mastra-location-agent-dev"
+
+# Environment variables (set via wrangler secret put)
+[vars]
+ENVIRONMENT = "production"
+
+# Secrets to be set:
+# OPENWEATHER_API_KEY
+# IPGEOLOCATION_API_KEY
+# OPENAI_API_KEY (for travel planning AI)
+
+# KV namespace for caching
+[[kv_namespaces]]
+binding = "CACHE"
+preview_id = "cache_preview"
+id = "cache_production"
+
+# Rate limiting
+[limits]
+cpu_ms = 50000
