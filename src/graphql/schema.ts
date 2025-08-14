@@ -13,143 +13,76 @@ const typeDefs = `
     isp: String
   }
 
-  type Weather {
-    location: String!
-    temperature: Float!
-    description: String!
-    humidity: Int!
-    windSpeed: Float!
-    windDirection: Int!
-    pressure: Float!
-    uvIndex: Float
-    visibility: Float
-    icon: String!
-    lastUpdated: String!
-  }
-
-  type TravelRecommendation {
-    destination: String!
-    description: String!
-    activities: [String!]!
-    bestTimeToVisit: String!
-    estimatedBudget: String!
-    transportationOptions: [String!]!
-    accommodationSuggestions: [String!]!
-    duration: String!
-  }
-
-  type AITravelRecommendation {
-    destination: String!
-    description: String!
-    activities: [String!]!
-    bestTimeToVisit: String!
-    estimatedBudget: String!
-    transportationOptions: [String!]!
-    accommodationSuggestions: [String!]!
-    duration: String!
-    aiInsights: String
-    personalizedTips: [String!]
-  }
-
-  type TravelInsights {
-    insights: String!
-    hiddenGems: [String!]!
+  type LocationInsights {
+    demographics: String!
+    economy: String!
+    culture: String!
+    attractions: [String!]!
+    climate: String!
+    livingCosts: String!
+    safetyInfo: String!
     localTips: [String!]!
-    culturalNotes: [String!]!
-    seasonalAdvice: String!
+    bestTimeToVisit: String!
+    transportation: [String!]!
   }
 
-  type PersonalizedItinerary {
-    itinerary: [PersonalizedItineraryDay!]!
-    generalTips: [String!]!
-    packingRecommendations: [String!]!
-    budgetBreakdown: BudgetBreakdown!
-  }
-
-  type PersonalizedItineraryDay {
-    day: Int!
-    date: String!
-    theme: String!
-    activities: [PersonalizedActivity!]!
-    meals: [PersonalizedMeal!]!
-    accommodation: String
-    dailyBudget: String!
-    transportationNotes: String!
-  }
-
-  type PersonalizedActivity {
-    time: String!
+  type NearbyPlace {
     name: String!
-    description: String!
-    location: String!
-    estimatedCost: String
-    duration: String!
-    tips: String
-  }
-
-  type PersonalizedMeal {
-    time: String!
     type: String!
-    restaurant: String!
-    cuisine: String!
-    estimatedCost: String
-    reservationNeeded: Boolean!
+    distance: String!
+    description: String!
+    coordinates: Coordinates
   }
 
-  type BudgetBreakdown {
-    accommodation: String!
-    food: String!
-    activities: String!
-    transportation: String!
+  type Coordinates {
+    latitude: Float!
+    longitude: Float!
   }
 
-  type TravelPlan {
-    id: String!
-    destination: String!
-    startDate: String!
-    endDate: String!
-    itinerary: [ItineraryItem!]!
-    totalBudget: String!
-    weatherForecast: [WeatherForecast!]!
-    recommendations: [TravelRecommendation!]!
-    aiRecommendations: [AITravelRecommendation!]
-    personalizedItinerary: PersonalizedItinerary
-    travelInsights: TravelInsights
-    createdAt: String!
+  type RiskAssessment {
+    overall: String!
+    naturalDisasters: String!
+    crimeSafety: String!
+    healthRisks: String!
+    travelAdvisory: String!
   }
 
-  type ItineraryItem {
-    day: Int!
-    date: String!
-    activities: [Activity!]!
-    meals: [Meal!]!
-    accommodation: String
+  type LocationAnalysis {
+    location: Location!
+    insights: LocationInsights!
+    nearbyPlaces: [NearbyPlace!]!
+    recommendations: [String!]!
+    riskAssessment: RiskAssessment!
   }
 
-  type Activity {
-    time: String!
+  type LocationComparison {
+    summary: String!
+    locations: [LocationComparisonItem!]!
+    recommendations: ComparisonRecommendations!
+  }
+
+  type LocationComparisonItem {
     name: String!
-    description: String!
-    location: String!
-    estimatedCost: String
-    duration: String!
+    scores: LocationScores!
+    pros: [String!]!
+    cons: [String!]!
+    bestFor: [String!]!
   }
 
-  type Meal {
-    time: String!
-    type: String!
-    restaurant: String!
-    cuisine: String!
-    estimatedCost: String
+  type LocationScores {
+    costOfLiving: String!
+    safety: String!
+    culture: String!
+    climate: String!
+    attractions: String!
   }
 
-  type WeatherForecast {
-    date: String!
-    maxTemp: Float!
-    minTemp: Float!
-    description: String!
-    icon: String!
-    precipitation: Float!
+  type ComparisonRecommendations {
+    budget: String!
+    luxury: String!
+    culture: String!
+    safety: String!
+    overall: String!
   }
 
   type WorkflowExecution {
@@ -171,86 +104,53 @@ const typeDefs = `
     duration: Int
   }
 
-  input TravelPlanInput {
-    destination: String!
-    startDate: String!
-    endDate: String!
-    budget: String
-    travelers: Int!
-    interests: [String!]
-    travelStyle: String
-    useAI: Boolean
-  }
-
-  input UserProfileInput {
-    age: Int
-    interests: [String!]!
-    travelStyle: String!
-    budget: String!
-    groupSize: Int!
-    accessibility: String
+  input LocationInput {
+    city: String!
+    country: String!
   }
 
   type Query {
-    # Location queries
+    # Basic location queries
     getLocationFromIP(ip: String!): Location
     getCurrentLocation: Location
 
-    # Weather queries
-    getWeatherByCoordinates(latitude: Float!, longitude: Float!): Weather
-    getWeatherByCity(city: String!, country: String): Weather
-    getWeatherByIP(ip: String): Weather
+    # AI-powered location analysis
+    getLocationInsights(
+      ip: String
+      city: String
+      country: String
+      purpose: String
+    ): LocationAnalysis!
 
-    # Travel queries
-    getTravelRecommendations(latitude: Float!, longitude: Float!, interests: [String!]): [TravelRecommendation!]!
-    getTravelPlan(id: String!): TravelPlan
-    getAllTravelPlans: [TravelPlan!]!
+    getRiskAnalysis(
+      city: String!
+      country: String!
+    ): String!
 
-    # AI-powered travel queries
-    getAITravelRecommendations(
-      location: String!
-      interests: [String!]!
-      travelStyle: String
-      budget: String
-      duration: String
-    ): [AITravelRecommendation!]!
+    getNearbyPlaces(
+      city: String!
+      country: String!
+      radius: String
+      categories: [String!]
+    ): [NearbyPlace!]!
 
-    getTravelInsights(
-      destination: String!
-      currentSeason: String!
-      userInterests: [String!]!
-    ): TravelInsights!
-
-    generatePersonalizedItinerary(
-      destination: String!
-      startDate: String!
-      endDate: String!
-      userProfile: UserProfileInput!
-    ): PersonalizedItinerary!
+    compareLocations(
+      locations: [LocationInput!]!
+      criteria: [String!]
+    ): LocationComparison!
 
     # Workflow queries
     getWorkflowExecution(id: String!): WorkflowExecution
   }
 
   type Mutation {
-    # Travel mutations
-    createTravelPlan(input: TravelPlanInput!): TravelPlan!
-    updateTravelPlan(id: String!, input: TravelPlanInput!): TravelPlan!
-    deleteTravelPlan(id: String!): Boolean!
-
-    # AI-enhanced travel mutations
-    createAITravelPlan(input: TravelPlanInput!, userProfile: UserProfileInput!): TravelPlan!
-
     # Workflow mutations
     executeLocationWorkflow(ip: String!): WorkflowExecution!
-    executeWeatherWorkflow(ip: String): WorkflowExecution!
-    executeTravelPlanningWorkflow(ip: String, destination: String, startDate: String!, endDate: String!): WorkflowExecution!
-    executeAITravelPlanningWorkflow(
+    executeLocationAnalysisWorkflow(
       ip: String
-      destination: String
-      startDate: String!
-      endDate: String!
-      userProfile: UserProfileInput!
+      city: String
+      country: String
+      purpose: String
     ): WorkflowExecution!
   }
 
