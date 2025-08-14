@@ -38,6 +38,71 @@ const typeDefs = `
     duration: String!
   }
 
+  type AITravelRecommendation {
+    destination: String!
+    description: String!
+    activities: [String!]!
+    bestTimeToVisit: String!
+    estimatedBudget: String!
+    transportationOptions: [String!]!
+    accommodationSuggestions: [String!]!
+    duration: String!
+    aiInsights: String
+    personalizedTips: [String!]
+  }
+
+  type TravelInsights {
+    insights: String!
+    hiddenGems: [String!]!
+    localTips: [String!]!
+    culturalNotes: [String!]!
+    seasonalAdvice: String!
+  }
+
+  type PersonalizedItinerary {
+    itinerary: [PersonalizedItineraryDay!]!
+    generalTips: [String!]!
+    packingRecommendations: [String!]!
+    budgetBreakdown: BudgetBreakdown!
+  }
+
+  type PersonalizedItineraryDay {
+    day: Int!
+    date: String!
+    theme: String!
+    activities: [PersonalizedActivity!]!
+    meals: [PersonalizedMeal!]!
+    accommodation: String
+    dailyBudget: String!
+    transportationNotes: String!
+  }
+
+  type PersonalizedActivity {
+    time: String!
+    name: String!
+    description: String!
+    location: String!
+    estimatedCost: String
+    duration: String!
+    tips: String
+  }
+
+  type PersonalizedMeal {
+    time: String!
+    type: String!
+    restaurant: String!
+    cuisine: String!
+    estimatedCost: String
+    reservationNeeded: Boolean!
+  }
+
+  type BudgetBreakdown {
+    accommodation: String!
+    food: String!
+    activities: String!
+    transportation: String!
+  }
+
   type TravelPlan {
     id: String!
     destination: String!
@@ -47,6 +112,9 @@ const typeDefs = `
     totalBudget: String!
     weatherForecast: [WeatherForecast!]!
     recommendations: [TravelRecommendation!]!
+    aiRecommendations: [AITravelRecommendation!]
+    personalizedItinerary: PersonalizedItinerary
+    travelInsights: TravelInsights
     createdAt: String!
   }
 
@@ -111,6 +179,16 @@ const typeDefs = `
     travelers: Int!
     interests: [String!]
     travelStyle: String
+    useAI: Boolean
+  }
+
+  input UserProfileInput {
+    age: Int
+    interests: [String!]!
+    travelStyle: String!
+    budget: String!
+    groupSize: Int!
+    accessibility: String
   }
 
   type Query {
@@ -128,6 +206,28 @@ const typeDefs = `
     getTravelPlan(id: String!): TravelPlan
     getAllTravelPlans: [TravelPlan!]!
 
+    # AI-powered travel queries
+    getAITravelRecommendations(
+      location: String!
+      interests: [String!]!
+      travelStyle: String
+      budget: String
+      duration: String
+    ): [AITravelRecommendation!]!
+
+    getTravelInsights(
+      destination: String!
+      currentSeason: String!
+      userInterests: [String!]!
+    ): TravelInsights!
+
+    generatePersonalizedItinerary(
+      destination: String!
+      startDate: String!
+      endDate: String!
+      userProfile: UserProfileInput!
+    ): PersonalizedItinerary!
+
     # Workflow queries
     getWorkflowExecution(id: String!): WorkflowExecution
   }
@@ -138,10 +238,20 @@ const typeDefs = `
     updateTravelPlan(id: String!, input: TravelPlanInput!): TravelPlan!
     deleteTravelPlan(id: String!): Boolean!
 
+    # AI-enhanced travel mutations
+    createAITravelPlan(input: TravelPlanInput!, userProfile: UserProfileInput!): TravelPlan!
+
     # Workflow mutations
     executeLocationWorkflow(ip: String!): WorkflowExecution!
     executeWeatherWorkflow(ip: String): WorkflowExecution!
     executeTravelPlanningWorkflow(ip: String, destination: String, startDate: String!, endDate: String!): WorkflowExecution!
+    executeAITravelPlanningWorkflow(
+      ip: String
+      destination: String
+      startDate: String!
+      endDate: String!
+      userProfile: UserProfileInput!
+    ): WorkflowExecution!
   }
 
   type Subscription {
