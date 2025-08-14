@@ -1,12 +1,14 @@
 import { LocationAgent } from '../agents/location-agent';
 import { WeatherAgent } from '../agents/weather-agent';
 import { TravelAgent } from '../agents/travel-agent';
+import { AITravelAgent } from '../agents/ai-travel-agent';
 import { Env } from '../index';
 
 export interface GraphQLContext extends Env {
   locationAgent: LocationAgent;
   weatherAgent: WeatherAgent;
   travelAgent: TravelAgent;
+  aiTravelAgent: AITravelAgent;
   clientIP?: string;
 }
 
@@ -16,6 +18,7 @@ export function createContext(
     locationAgent: LocationAgent;
     weatherAgent: WeatherAgent;
     travelAgent: TravelAgent;
+    aiTravelAgent: AITravelAgent;
   }
 ): Partial<GraphQLContext> {
   // Extract client IP from various headers
